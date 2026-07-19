@@ -1,29 +1,11 @@
 'use client';
 
-import { useState, useSyncExternalStore, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Input, Button, Select } from 'antd';
 import { CloseOutlined } from '@ant-design/icons';
 import SearchIcon from '@/assets/icons/SearchIcon.svg';
 import { useSearchTextStore } from '@/store/useSearchTextStore';
 import { useRouter } from 'next/navigation';
-
-const subscribe = (callback: () => void) => {
-  if (typeof window === 'undefined') return () => {};
-  window?.addEventListener('storage', callback);
-  window?.addEventListener('local-storage-update', callback);
-  return () => {
-    window?.removeEventListener('storage', callback);
-    window?.removeEventListener('local-storage-update', callback);
-  };
-};
-
-const getSnapshot = () => {
-  if (typeof window === 'undefined') return '[]';
-  const saved = localStorage?.getItem('search_history');
-  return !!saved ? saved : '[]';
-};
-
-const getServerSnapshot = () => '[]';
 
 const detailOptionList = [
   { value: 'title', label: '제목' },
@@ -51,15 +33,7 @@ const SearchInput = ({
     activeParam !== 'text' ? activeParam : 'title',
   );
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const historyRaw = useSyncExternalStore(
-    subscribe,
-    getSnapshot,
-    getServerSnapshot,
-  );
-  const history: string[] = JSON.parse(historyRaw);
-
-  const setSearchText = useSearchTextStore((state) => state.setSearchText);
+  const { searchTexts, setSearchTexts } = useSearchTextStore();
 
   useEffect(() => {
     const handleOutsideClick = (e: MouseEvent) => {
@@ -75,26 +49,20 @@ const SearchInput = ({
     return () => document?.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
-  const updateHistoryStore = (nextHistory: string[]) => {
-    localStorage?.setItem('search_history', JSON.stringify(nextHistory));
-    window?.dispatchEvent(new Event('local-storage-update'));
-  };
-
   const handleSearch = (value: string) => {
     const trimmed = value?.trim();
     if (!trimmed || trimmed === '') return;
 
-    const filtered = history?.filter((item) => item !== trimmed);
+    const filtered = searchTexts?.filter((item) => item !== trimmed);
     const nextHistory = [trimmed, ...filtered];
 
     if (nextHistory?.length > 8) {
       nextHistory?.pop();
     }
 
-    updateHistoryStore(nextHistory);
+    setSearchTexts(nextHistory);
     setIsFocused(false);
     setIsDetailOpen(false);
-    setSearchText(trimmed);
     router.push(`?text=${trimmed}`);
   };
 
@@ -105,7 +73,7 @@ const SearchInput = ({
 
   const handleDeleteHistory = (e: React.MouseEvent, targetItem: string) => {
     e.stopPropagation();
-    updateHistoryStore(history.filter((item) => item !== targetItem));
+    setSearchTexts(searchTexts?.filter((item) => item !== targetItem));
   };
 
   return (
@@ -134,7 +102,7 @@ const SearchInput = ({
               />
             }
             className={`[&_input]::placeholder:font-bold! [&_input]::placeholder:text-sub-dark! w-full items-center border-none! bg-light-gray! text-base shadow-none! transition-none! outline-none! ${
-              isFocused && history.length > 0
+              isFocused && searchTexts.length > 0
                 ? 'rounded-t-3xl! rounded-b-none!'
                 : 'rounded-full!'
             } placeholder:font-bold! hover:bg-[#E5E7EB] focus:bg-light-gray [&_.ant-input-prefix]:flex [&_.ant-input-prefix]:h-[30px]! [&_.ant-input-prefix]:items-center`}
@@ -148,10 +116,10 @@ const SearchInput = ({
           />
 
           {/* 피그마 드롭다운 검색 기록 레이어 */}
-          {isFocused && history.length > 0 && (
+          {isFocused && searchTexts.length > 0 && (
             <div className="absolute top-[46px] left-0 z-50 w-full overflow-hidden rounded-b-3xl bg-light-gray pb-4">
               <div className="flex flex-col">
-                {history.map((item, index) => (
+                {searchTexts.map((item, index) => (
                   <div
                     key={index}
                     onClick={() => handleSearch(item)}

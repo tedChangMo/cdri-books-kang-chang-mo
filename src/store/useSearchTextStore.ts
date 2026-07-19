@@ -1,12 +1,20 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
 
 interface SearchState {
-  searchText: string;
-  setSearchText: (value: string) => void;
+  searchTexts: string[];
+  setSearchTexts: (value: string[]) => void;
 }
 
-export const useSearchTextStore = create<SearchState>()((set) => ({
-  searchText: '',
-
-  setSearchText: (value) => set({ searchText: value }),
-}));
+export const useSearchTextStore = create<SearchState>()(
+  persist(
+    (set) => ({
+      searchTexts: [],
+      setSearchTexts: (value) => set({ searchTexts: value }),
+    }),
+    {
+      name: 'search-text-storage',
+      storage: createJSONStorage(() => localStorage),
+    },
+  ),
+);

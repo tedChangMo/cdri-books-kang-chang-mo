@@ -133,9 +133,9 @@ const SearchComponent = () => {
 
   return (
     <div className="mx-4 mb-8 w-full max-w-[90%] pt-8 sm:mx-auto lg:max-w-240 lg:pt-[104]">
-      <h2 className="mb-4 text-center text-xl font-bold lg:text-left">
+      <Font weight="bold" className="text-[22px]! leading-8!">
         도서 검색
-      </h2>
+      </Font>
       <SearchInput
         key={`${activeParam}${paramValue}`}
         activeParam={activeParam}
