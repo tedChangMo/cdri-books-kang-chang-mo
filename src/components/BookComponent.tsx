@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { BookType } from '@/shared/types';
 import LikeIcon from '@/assets/icons/LikeIcon.svg';
 import UnlikeIcon from '@/assets/icons/UnlikeIcon.svg';
 import CustomDownOutlinedIcon from '@/assets/icons/CustomDownOutlinedIcon.svg';
@@ -10,11 +9,15 @@ import { CreditCardOutlined } from '@ant-design/icons';
 import { Font } from './Font';
 import { Button, Skeleton } from 'antd';
 import { formatWon } from '@/shared/utils/formatter';
+import { useLikeBooksStore } from '@/store/useLikeBooksStore';
+import { BookType } from '@/shared/types';
 
 const BookComponent = ({ book }: { book: BookType }) => {
   const [detailView, setDetailView] = useState(false);
+  const { likeBooks, setLikeBooks } = useLikeBooksStore();
 
   const saleExist = book?.sale_price && book.sale_price > 0;
+  const isLiked = likeBooks?.some((liked) => liked.isbn === book.isbn);
 
   return (
     <div
@@ -34,12 +37,25 @@ const BookComponent = ({ book }: { book: BookType }) => {
         <div
           className={`absolute z-10 ${detailView ? 'top-3 right-[10px]' : 'top-[2px] right-[2px]'}`}
         >
-          <UnlikeIcon
-            className={`${detailView ? 'h-[18px] w-5' : 'h-3 w-[14px]'}`}
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-            }}
-          />
+          {isLiked ? (
+            <LikeIcon
+              className={`${detailView ? 'h-[18px] w-5' : 'h-3 w-[14px]'} cursor-pointer`}
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                setLikeBooks(
+                  likeBooks?.filter((liked) => liked.isbn !== book.isbn),
+                );
+              }}
+            />
+          ) : (
+            <UnlikeIcon
+              className={`${detailView ? 'h-[18px] w-5' : 'h-3 w-[14px]'} cursor-pointer`}
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                setLikeBooks([...likeBooks, book]);
+              }}
+            />
+          )}
         </div>
         {!!book?.thumbnail ? (
           <Image
