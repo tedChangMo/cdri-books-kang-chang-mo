@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useRef, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useBookSearch, useInfiniteBookSearch } from './service';
+import { useSearchParams } from 'next/navigation';
+import { useInfiniteBookSearch } from './service';
 import { Spin } from 'antd';
 import BookIcon from '@/assets/icons/BookIcon.svg';
 import SearchInput from '@/features/search/SearchInput';
@@ -92,30 +92,17 @@ const BookList = ({
 };
 
 const SearchComponent = () => {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const activeParam =
     validParams.find((key) => searchParams?.has(key)) || 'text';
   const paramValue = searchParams?.get(activeParam) || '';
 
-  //   const { data, isLoading, isError } = useBookSearch({
-  //     query: paramValue,
-  //     target:
-  //       activeParam === 'text' || activeParam === 'title'
-  //         ? 'title'
-  //         : activeParam === 'publisher'
-  //           ? 'publisher'
-  //           : 'person',
-  //     page: 1,
-  //     size: 10,
-  //   });
-
   const {
-    data: infiniteData,
+    data,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isLoading: infinitiLoading,
+    // isLoading: infinitiLoading,
   } = useInfiniteBookSearch({
     query: paramValue,
     target:
@@ -127,9 +114,8 @@ const SearchComponent = () => {
     size: 10,
   });
 
-  const infiniteBooks =
-    infiniteData?.pages?.flatMap((page) => page.documents) ?? [];
-  const infiniteCount = infiniteData?.pages[0]?.meta?.total_count;
+  const infiniteBooks = data?.pages?.flatMap((page) => page.documents) ?? [];
+  const infiniteCount = data?.pages[0]?.meta?.total_count;
 
   return (
     <div className="mx-4 mb-8 w-full max-w-[90%] pt-8 sm:mx-auto lg:max-w-240 lg:pt-[104]">

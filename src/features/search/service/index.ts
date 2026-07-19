@@ -1,30 +1,6 @@
 import { BookRequestType } from '@/shared/types';
-import {
-  useQuery,
-  useInfiniteQuery,
-  queryOptions,
-} from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { getBookSearch } from '../api';
-
-export const useBookSearch = (params: BookRequestType) => {
-  return useQuery(
-    queryOptions({
-      queryKey: [
-        'books',
-        'search',
-        params?.query || '',
-        params?.target || '',
-        params?.page,
-        params?.size,
-      ] as const,
-
-      queryFn: () => getBookSearch(params),
-
-      staleTime: 1000 * 60 * 5,
-      enabled: !!params?.query,
-    }),
-  );
-};
 
 export const useInfiniteBookSearch = (
   params: Omit<BookRequestType, 'page'>,
