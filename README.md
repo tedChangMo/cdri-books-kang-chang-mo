@@ -75,8 +75,6 @@ https://github.com/tedChangMo/cdri-books-kang-chang-mo/blob/4a5ac260eb1d44acd004
 
 * **React 19**
   * useCallback, useMemo 등 별도 메모이제이션 없이 성능 향상에 도움이 되는 점에 적용해 보았습니다.
-* **React Query**
-  * query 캐싱 기능이 강력하여 사용하였습니다.
 * **antd & tailwind**
   * 모집 공고에 사용되는 스택으로 명시되어 있어 UI 구현에 채택하였습니다.
 * **zustand**
